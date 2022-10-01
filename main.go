@@ -8,7 +8,7 @@ import (
 func main() {
 	const conferenceTickets int = 50  // const cannot be changed
 	var remainingTickets uint = 50    // var can be changed
-	conferenceName := "Go Conference" // shortcut for var definition (N/A for const)
+	conferenceName := "Go Conference" // shortcut for var definition with type inference (N/A for const)
 	var bookings = []string{}         // empty slice of flexible size
 
 	// print variable types
@@ -32,17 +32,38 @@ func main() {
 		fmt.Println("Please enter your last name: ")
 		fmt.Scan(&lastName)
 
+		isValidName := len(firstName) >= 2 && len(lastName) >= 2
+
+		if !isValidName {
+			fmt.Println("Your first name or last name is too short, please try again")
+			// skip the remainder of current loop, retry booking with another loop
+			continue
+		}
+
 		fmt.Println("Please enter your email address: ")
 		fmt.Scan(&email)
+
+		isValidEmail := strings.Contains(email, "@")
+
+		if !isValidEmail {
+			fmt.Println("The email you entered does not contain @ sign, please try again")
+			// skip the remainder of current loop, retry booking with another loop
+			continue
+		}
 
 		fmt.Println("Please enter number of tickets: ")
 		fmt.Scan(&userTickets)
 
-		if userTickets > remainingTickets {
+		// validate user inputs
+		isValidTicketNumber := userTickets > 0 && userTickets <= remainingTickets
+
+		if !isValidTicketNumber {
+			fmt.Println("Number of tickets you entered is invalid, please try again")
 			fmt.Printf("We only have %v tickets remaning, so you can't book %v tickets\n", remainingTickets, userTickets)
 			// skip the remainder of current loop, retry booking with another loop
 			continue
 		}
+
 		remainingTickets = remainingTickets - userTickets
 
 		bookings = append(bookings, firstName+" "+lastName)
