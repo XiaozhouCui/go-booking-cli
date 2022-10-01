@@ -18,6 +18,7 @@ func main() {
 	fmt.Printf("We have total of %v tickets and %v are still available\n", conferenceTickets, remainingTickets)
 	fmt.Println("Get your tickets here to attend")
 
+	// indefinite loop, each loop for each user
 	for {
 		var firstName string
 		var lastName string
@@ -37,6 +38,11 @@ func main() {
 		fmt.Println("Please enter number of tickets: ")
 		fmt.Scan(&userTickets)
 
+		if userTickets > remainingTickets {
+			fmt.Printf("We only have %v tickets remaning, so you can't book %v tickets\n", remainingTickets, userTickets)
+			// skip the remainder of current loop, retry booking with another loop
+			continue
+		}
 		remainingTickets = remainingTickets - userTickets
 
 		bookings = append(bookings, firstName+" "+lastName)
@@ -45,13 +51,19 @@ func main() {
 		fmt.Printf("%v tickets remaining for %v.\n", remainingTickets, conferenceName)
 
 		firstNames := []string{} // shortcut for creating an empty slice
-		// "_" is for unused param (index in this case)
+		// loop through bookings slice, "_" is for unused param (index in this case)
 		for _, booking := range bookings {
 			// split the string with white space as separator, and return a slice with the split elements
-			var names = strings.Fields(booking) // separate first name ans last name from a full name
+			var names = strings.Fields(booking) // separate first name ans last name from a full name by white space
 			firstNames = append(firstNames, names[0])
 		}
 
 		fmt.Printf("The first names of bookings are: %v\n", firstNames)
+
+		if remainingTickets == 0 {
+			// end program (loop)
+			fmt.Println("Our conference is booked out. Come back next year.")
+			break
+		}
 	}
 }
