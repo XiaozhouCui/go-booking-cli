@@ -1,16 +1,15 @@
 package main
 
 import (
-	"booking-app/helper"
 	"fmt"
-	"strings"
+	"strconv"
 )
 
 // package-level variables, shared across files using "package main" at the top
 const conferenceTickets int = 50            // const cannot be changed
 var remainingTickets uint = 50              // var can be changed
 var conferenceName string = "Go Conference" // cannot use shortcut declaration (a := b) in package-level variables
-var bookings = []string{}                   // empty slice of flexible size
+var bookings = make([]map[string]string, 0) // empty list of maps of 0 key-value pairs
 
 func main() {
 
@@ -23,7 +22,7 @@ func main() {
 	for {
 		// go functions can return multiple values
 		firstName, lastName, email, userTickets := getUserInput()
-		isValidName, isValidEmail, isValidTicketNumber := helper.ValidateUserInput(firstName, lastName, email, userTickets, remainingTickets)
+		isValidName, isValidEmail, isValidTicketNumber := validateUserInput(firstName, lastName, email, userTickets)
 
 		// // if email is invalid, use "continue" to skip the remainder of current loop, retry booking with another loop
 		// if !isValidEmail {
@@ -70,8 +69,8 @@ func getFirstNames() []string {
 	// loop through bookings slice, "_" is for unused param (index in this case)
 	for _, booking := range bookings {
 		// split the string with white space as separator, and return a slice with the split elements
-		var names = strings.Fields(booking) // separate first name ans last name from a full name by white space
-		firstNames = append(firstNames, names[0])
+		// var names = strings.Fields(booking) // separate first name ans last name from a full name by white space
+		firstNames = append(firstNames, booking["firstName"])
 	}
 	// return a slice of strings
 	return firstNames
@@ -101,8 +100,17 @@ func getUserInput() (string, string, string, uint) {
 
 func bookTicket(userTickets uint, firstName string, lastName string, email string) {
 	remainingTickets = remainingTickets - userTickets
-	bookings = append(bookings, firstName+" "+lastName)
-	fmt.Printf("bookings: %v \n", bookings)
+
+	// create an empty map for a user
+	var userData = make(map[string]string)
+	// assign key-value pairs
+	userData["firstName"] = firstName
+	userData["lastName"] = lastName
+	userData["email"] = email
+	userData["numberOfTickets"] = strconv.FormatUint(uint64(userTickets), 10) // convert uint into string
+
+	bookings = append(bookings, userData)
+	fmt.Printf("List of bookings is %v\n", bookings)
 
 	fmt.Printf("Thank you %v %v for booking %v tickets. You will receive a confirmation email at %v\n", firstName, lastName, userTickets, email)
 	fmt.Printf("%v tickets remaining for %v\n", remainingTickets, conferenceName)
