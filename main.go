@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"sync"
+	"time"
 )
 
 // package-level variables, shared across files using "package main" at the top
@@ -18,6 +20,9 @@ type UserData struct {
 	email           string
 	numberOfTickets uint
 }
+
+// Concurrency: wait for the launched goroutine (Green thread) to finish
+var wg = sync.WaitGroup{}
 
 func main() {
 
@@ -42,6 +47,11 @@ func main() {
 
 			bookTicket(userTickets, firstName, lastName, email)
 
+			// Concurrency: add 1 thread (sendTicket) to the wait group counter
+			wg.Add(1)
+			// keyword "go" is for concurrency, running the sendTicket func in a new thread
+			go sendTicket(userTickets, firstName, lastName, email) // takes 10 sec
+
 			// firstNames is a slice of strings
 			firstNames := getFirstNames()
 			fmt.Printf("The first names of bookings are: %v\n", firstNames)
@@ -62,6 +72,8 @@ func main() {
 				fmt.Println("Number of tickets you entered is invalid")
 			}
 		}
+		// Concurrency: wait for the threads in the wait group
+		wg.Wait() // program does not end while waiting
 	}
 }
 
@@ -131,4 +143,17 @@ func bookTicket(userTickets uint, firstName string, lastName string, email strin
 
 	fmt.Printf("Thank you %v %v for booking %v tickets. You will receive a confirmation email at %v\n", firstName, lastName, userTickets, email)
 	fmt.Printf("%v tickets remaining for %v\n", remainingTickets, conferenceName)
+}
+
+// sendTicket will be run concurrently
+func sendTicket(userTickets uint, firstName string, lastName string, email string) {
+	// Sleep function stops the current "thread" (go-routine) execution
+	time.Sleep(10 * time.Second) // wait for 10 seconds
+	// use Sprintf to store the string
+	var ticket = fmt.Sprintf("%v tickets for %v %v", userTickets, firstName, lastName)
+	fmt.Println("################")
+	fmt.Printf("Sending ticket:\n%v \nto email address %v\n", ticket, email)
+	fmt.Println("################")
+	// Concurrency: remove the thread from wait group once done
+	wg.Done()
 }
