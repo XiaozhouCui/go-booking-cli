@@ -2,14 +2,22 @@ package main
 
 import (
 	"fmt"
-	"strconv"
 )
 
 // package-level variables, shared across files using "package main" at the top
 const conferenceTickets int = 50            // const cannot be changed
 var remainingTickets uint = 50              // var can be changed
 var conferenceName string = "Go Conference" // cannot use shortcut declaration (a := b) in package-level variables
-var bookings = make([]map[string]string, 0) // empty list of maps of 0 key-value pairs
+var bookings = make([]UserData, 0)          // empty list of UserData struct, with size of 0 key-value pairs
+// var bookings = make([]map[string]string, 0) // empty list of maps, with size of 0 key-value pairs
+
+// struct can have different value types
+type UserData struct {
+	firstName       string
+	lastName        string
+	email           string
+	numberOfTickets uint
+}
 
 func main() {
 
@@ -70,7 +78,8 @@ func getFirstNames() []string {
 	for _, booking := range bookings {
 		// split the string with white space as separator, and return a slice with the split elements
 		// var names = strings.Fields(booking) // separate first name ans last name from a full name by white space
-		firstNames = append(firstNames, booking["firstName"])
+		// firstNames = append(firstNames, booking["firstName"]) // booking is a map
+		firstNames = append(firstNames, booking.firstName) // booking is a struct
 	}
 	// return a slice of strings
 	return firstNames
@@ -101,13 +110,21 @@ func getUserInput() (string, string, string, uint) {
 func bookTicket(userTickets uint, firstName string, lastName string, email string) {
 	remainingTickets = remainingTickets - userTickets
 
-	// create an empty map for a user
-	var userData = make(map[string]string)
-	// assign key-value pairs
-	userData["firstName"] = firstName
-	userData["lastName"] = lastName
-	userData["email"] = email
-	userData["numberOfTickets"] = strconv.FormatUint(uint64(userTickets), 10) // convert uint into string
+	// // create an empty map for a user
+	// var userData = make(map[string]string)
+	// // assign key-value pairs
+	// userData["firstName"] = firstName
+	// userData["lastName"] = lastName
+	// userData["email"] = email
+	// userData["numberOfTickets"] = strconv.FormatUint(uint64(userTickets), 10) // convert uint into string
+
+	// userData is a struct, assign value for each field
+	var userData = UserData{
+		firstName:       firstName,
+		lastName:        lastName,
+		email:           email,
+		numberOfTickets: userTickets,
+	}
 
 	bookings = append(bookings, userData)
 	fmt.Printf("List of bookings is %v\n", bookings)
