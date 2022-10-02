@@ -11,12 +11,10 @@ func main() {
 	conferenceName := "Go Conference" // shortcut for var definition with type inference (N/A for const)
 	var bookings = []string{}         // empty slice of flexible size
 
+	greetUsers(conferenceName, conferenceTickets, remainingTickets)
+
 	// print variable types
 	fmt.Printf("conferenceTickets is %T, remainingTickets is %T, conferenceName is %T\n", conferenceTickets, remainingTickets, conferenceName)
-
-	fmt.Printf("Welcome to %v booking application\n", conferenceName)
-	fmt.Printf("We have total of %v tickets and %v are still available\n", conferenceTickets, remainingTickets)
-	fmt.Println("Get your tickets here to attend")
 
 	// indefinite loop, each loop for each user
 	for {
@@ -32,59 +30,75 @@ func main() {
 		fmt.Println("Please enter your last name: ")
 		fmt.Scan(&lastName)
 
-		isValidName := len(firstName) >= 2 && len(lastName) >= 2
-
-		if !isValidName {
-			fmt.Println("Your first name or last name is too short, please try again")
-			// skip the remainder of current loop, retry booking with another loop
-			continue
-		}
-
 		fmt.Println("Please enter your email address: ")
 		fmt.Scan(&email)
-
-		isValidEmail := strings.Contains(email, "@")
-
-		if !isValidEmail {
-			fmt.Println("The email you entered does not contain @ sign, please try again")
-			// skip the remainder of current loop, retry booking with another loop
-			continue
-		}
 
 		fmt.Println("Please enter number of tickets: ")
 		fmt.Scan(&userTickets)
 
-		// validate user inputs
-		isValidTicketNumber := userTickets > 0 && userTickets <= remainingTickets
+		// go func can return multi values
+		isValidName, isValidEmail, isValidTicketNumber := validateUserInput(firstName, lastName, email, userTickets, remainingTickets)
 
-		if !isValidTicketNumber {
-			fmt.Println("Number of tickets you entered is invalid, please try again")
-			fmt.Printf("We only have %v tickets remaning, so you can't book %v tickets\n", remainingTickets, userTickets)
-			// skip the remainder of current loop, retry booking with another loop
-			continue
-		}
+		// // if email is invalid, use "continue" to skip the remainder of current loop, retry booking with another loop
+		// if !isValidEmail {
+		// 	fmt.Println("The email you entered does not contain @ sign, please try again")
+		// 	continue
+		// }
 
-		remainingTickets = remainingTickets - userTickets
+		if isValidName && isValidEmail && isValidTicketNumber {
+			remainingTickets = remainingTickets - userTickets
 
-		bookings = append(bookings, firstName+" "+lastName)
+			bookings = append(bookings, firstName+" "+lastName)
 
-		fmt.Printf("Thank you %v %v for booking %v tickets. You will receive a confirmation email at %v.\n", firstName, lastName, userTickets, email)
-		fmt.Printf("%v tickets remaining for %v.\n", remainingTickets, conferenceName)
+			fmt.Printf("Thank you %v %v for booking %v tickets. You will receive a confirmation email at %v.\n", firstName, lastName, userTickets, email)
+			fmt.Printf("%v tickets remaining for %v.\n", remainingTickets, conferenceName)
 
-		firstNames := []string{} // shortcut for creating an empty slice
-		// loop through bookings slice, "_" is for unused param (index in this case)
-		for _, booking := range bookings {
-			// split the string with white space as separator, and return a slice with the split elements
-			var names = strings.Fields(booking) // separate first name ans last name from a full name by white space
-			firstNames = append(firstNames, names[0])
-		}
+			// firstNames is a slice of strings
+			firstNames := getFirstNames(bookings)
+			fmt.Printf("The first names of bookings are: %v\n", firstNames)
 
-		fmt.Printf("The first names of bookings are: %v\n", firstNames)
-
-		if remainingTickets == 0 {
-			// end program (loop)
-			fmt.Println("Our conference is booked out. Come back next year.")
-			break
+			if remainingTickets == 0 {
+				// end program (loop)
+				fmt.Println("Our conference is booked out. Come back next year.")
+				break
+			}
+		} else {
+			if !isValidName {
+				fmt.Println("Your first name or last name is too short")
+			}
+			if !isValidEmail {
+				fmt.Println("The email you entered does not contain @ sign")
+			}
+			if !isValidTicketNumber {
+				fmt.Println("Number of tickets you entered is invalid")
+				fmt.Printf("We only have %v tickets remaning, so you can't book %v tickets\n", remainingTickets, userTickets)
+			}
 		}
 	}
+}
+
+func greetUsers(confName string, confTickets int, remainingTickets uint) {
+	fmt.Printf("Welcome to %v booking application\n", confName)
+	fmt.Printf("We have total of %v tickets and %v are still available\n", confTickets, remainingTickets)
+	fmt.Println("Get your tickets here to attend")
+}
+
+func getFirstNames(bookings []string) []string {
+	firstNames := []string{} // shortcut for creating an empty slice
+	// loop through bookings slice, "_" is for unused param (index in this case)
+	for _, booking := range bookings {
+		// split the string with white space as separator, and return a slice with the split elements
+		var names = strings.Fields(booking) // separate first name ans last name from a full name by white space
+		firstNames = append(firstNames, names[0])
+	}
+	// return a slice of strings
+	return firstNames
+}
+
+func validateUserInput(firstName string, lastName string, email string, userTickets uint, remainingTickets uint) (bool, bool, bool) {
+	isValidName := len(firstName) >= 2 && len(lastName) >= 2
+	isValidEmail := strings.Contains(email, "@")
+	isValidTicketNumber := userTickets > 0 && userTickets <= remainingTickets
+	// golang can return multiple values
+	return isValidName, isValidEmail, isValidTicketNumber
 }
