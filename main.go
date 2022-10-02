@@ -1,11 +1,12 @@
 package main
 
 import (
+	"booking-app/helper"
 	"fmt"
 	"strings"
 )
 
-// package-level variables, shared across funcs
+// package-level variables, shared across files using "package main" at the top
 const conferenceTickets int = 50            // const cannot be changed
 var remainingTickets uint = 50              // var can be changed
 var conferenceName string = "Go Conference" // cannot use shortcut declaration (a := b) in package-level variables
@@ -22,7 +23,7 @@ func main() {
 	for {
 		// go functions can return multiple values
 		firstName, lastName, email, userTickets := getUserInput()
-		isValidName, isValidEmail, isValidTicketNumber := validateUserInput(firstName, lastName, email, userTickets)
+		isValidName, isValidEmail, isValidTicketNumber := helper.ValidateUserInput(firstName, lastName, email, userTickets, remainingTickets)
 
 		// // if email is invalid, use "continue" to skip the remainder of current loop, retry booking with another loop
 		// if !isValidEmail {
@@ -74,15 +75,6 @@ func getFirstNames() []string {
 	}
 	// return a slice of strings
 	return firstNames
-}
-
-func validateUserInput(firstName string, lastName string, email string, userTickets uint) (bool, bool, bool) {
-	isValidName := len(firstName) >= 2 && len(lastName) >= 2
-	isValidEmail := strings.Contains(email, "@")
-	// remainingTickets is package-level variable
-	isValidTicketNumber := userTickets > 0 && userTickets <= remainingTickets
-	// golang can return multiple values
-	return isValidName, isValidEmail, isValidTicketNumber
 }
 
 func getUserInput() (string, string, string, uint) {
